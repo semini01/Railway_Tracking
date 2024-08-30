@@ -3,6 +3,32 @@ const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+// MySQL connection
+const pool = mysql.createPool({
+    host: 'bl8erptsedyxj2clufkk-mysql.services.clever-cloud.com',
+    user: 'u6dacjrc9g9lpcw4',
+    password: '23MI1tUi2PkFnzFNZdXL',
+    database: 'bl8erptsedyxj2clufkk'
+});
+
+// Express app
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// API endpoints
+app.post('/api/v1/locations', (req, res) => {
+    const locationData = req.body;
+    pool.query('INSERT INTO locations SET ?', locationData, (err, result) => {
+        if (err) {
+            res.status(500).json({error: 'Failed to save location data'});
+        } else {
+            res.json({message: 'Location data saved successfully'});
+        }
+    });
+});
+
+
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
