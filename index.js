@@ -29,6 +29,16 @@ app.post('/api/v1/locations', (req, res) => {
 });
 
 
+app.get('/api/v1/locations', (req, res) => {
+    pool.query('SELECT * FROM locations', (err, results) => {
+        if (err) {
+            res.status(500).json({error: 'Failed to retrieve locations'});
+        } else {
+            res.json(results);
+        }
+    });
+});
+
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
