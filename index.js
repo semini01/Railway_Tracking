@@ -39,6 +39,18 @@ app.get('/api/v1/locations', (req, res) => {
     });
 });
 
+app.get('/api/v1/locations/:trainId', (req, res) => {
+    pool.query('SELECT * FROM locations WHERE trainId = ?', [req.params.trainId], (err, results) => {
+        if (err) {
+            res.status(500).json({error: 'Failed to retrieve location'});
+        } else if (results.length === 0) {
+            res.status(404).json({error: 'Location not found'});
+        } else {
+            res.json(results[0]);
+        }
+    });
+});
+
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
