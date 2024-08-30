@@ -51,6 +51,16 @@ app.get('/api/v1/locations/:trainId', (req, res) => {
     });
 });
 
+app.get('/api/v1/trains', (req, res) => {
+    pool.query('SELECT * FROM trains', (err, results) => {
+        if (err) {
+            res.status(500).json({error: 'Failed to retrieve trains'});
+        } else {
+            res.json(results);
+        }
+    });
+});
+
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
