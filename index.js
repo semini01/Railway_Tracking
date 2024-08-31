@@ -28,6 +28,21 @@ app.post('/api/v1/locations', (req, res) => {
     });
 });
 
+// Update location endpoint
+app.put('/api/v1/locations/:trainId', (req, res) => {
+    const trainId = req.params.trainId;
+    const locationData = req.body;
+
+    pool.query('UPDATE locations SET ? WHERE trainId = ?', [locationData, trainId], (err, result) => {
+        if (err) {
+            res.status(500).json({ error: 'Failed to update location data - ' + err });
+        } else if (result.affectedRows === 0) {
+            res.status(404).json({ error: 'Location not found' });
+        } else {
+            res.json({ message: 'Location data updated successfully' });
+        }
+    });
+});
 
 app.get('/api/v1/locations', (req, res) => {
     pool.query('SELECT * FROM locations', (err, results) => {
@@ -61,6 +76,17 @@ app.get('/api/v1/trains', (req, res) => {
     });
 });
 
+app.get('/api/v1/trains/:trainId', (req, res) => {
+    pool.query('SELECT * FROM trains WHERE trainId = ?', [req.params.trainId], (err, results) => {
+        if (err) {
+            res.status(500).json({error: 'Failed to retrieve train'});
+        } else if (results.length === 0) {
+            res.status(404).json({error: 'Train not found'});
+        } else {
+            res.json(results[0]);
+        }
+    });
+});
 // Start the server
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
