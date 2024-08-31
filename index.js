@@ -1,16 +1,15 @@
 const express = require('express');
-const mysql = require('mysql2');
+const { Pool } = require('pg');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-// MySQL connection
-const pool = mysql.createPool({
-    host: 'bl8erptsedyxj2clufkk-mysql.services.clever-cloud.com',
-    user: 'u6dacjrc9g9lpcw4',
-    password: '23MI1tUi2PkFnzFNZdXL',
-    database: 'bl8erptsedyxj2clufkk'
+// PostgreSQL connection
+const pool = new Pool({
+    host: 'bbryhj4grww25kl6jgze-postgresql.services.clever-cloud.com', // PostgreSQL host
+    user: 'umijtag0bc7udewpogtr', // PostgreSQL username
+    password: '9S7MPvJlKQhSEo3UMO3QE6EixxwW2i', // PostgreSQL password
+    database: 'bbryhj4grww25kl6jgze' // PostgreSQL database name
 });
-
 // Express app
 const app = express();
 app.use(cors());
@@ -19,7 +18,10 @@ app.use(bodyParser.json());
 // API endpoints
 app.post('/api/v1/locations', (req, res) => {
     const locationData = req.body;
-    pool.query('INSERT INTO locations SET ?', locationData, (err, result) => {
+    const query = 'INSERT INTO locations (id, trainid, timestamp, latitude, longitude, speed, direction) VALUES ($1, $2, $3, $4, $5, $6, $7)';
+    const values = [locationData.id, locationData.trainid, locationData.timestamp, locationData.latitude, locationData.longitude, locationData.speed, locationData.direction || null]; // Handle optional direction
+
+    pool.query(query,values, (err, result) => {
         if (err) {
             res.status(500).json({error: 'Failed to save location data'});
         } else {
@@ -55,7 +57,8 @@ app.get('/api/v1/locations', (req, res) => {
 });
 
 app.get('/api/v1/locations/:trainId', (req, res) => {
-    pool.query('SELECT * FROM locations WHERE trainId = ?', [req.params.trainId], (err, results) => {
+    const trainId = req.params.trainId;
+    pool.query('SELECT * FROM locations WHERE trainId = $1', [trainId], (err, results) => {
         if (err) {
             res.status(500).json({error: 'Failed to retrieve location'});
         } else if (results.length === 0) {
