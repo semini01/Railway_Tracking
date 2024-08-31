@@ -39,6 +39,7 @@ app.put('/api/v1/locations/:trainId', (req, res) => {
     const query = 'UPDATE locations SET ? WHERE trainId = $1 RETURNING *';
     const values = [locationData, trainId];
 
+    console.log(query.toString())
     pool.query(query, values, (err, result) => {
         if (err) {
             res.status(500).json({error: 'Failed to update location data - ' + err});
@@ -78,7 +79,7 @@ app.get('/api/v1/trains', (req, res) => {
         if (err) {
             res.status(500).json({error: 'Failed to retrieve trains'});
         } else {
-            res.json(results);
+            res.json(results["rows"]);
         }
     });
 });
