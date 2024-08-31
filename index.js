@@ -1,5 +1,5 @@
 const express = require('express');
-const { Pool } = require('pg');
+const {Pool} = require('pg');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
@@ -8,7 +8,8 @@ const pool = new Pool({
     host: 'bbryhj4grww25kl6jgze-postgresql.services.clever-cloud.com', // PostgreSQL host
     user: 'umijtag0bc7udewpogtr', // PostgreSQL username
     password: '9S7MPvJlKQhSEo3UMO3QE6EixxwW2i', // PostgreSQL password
-    database: 'bbryhj4grww25kl6jgze' // PostgreSQL database name
+    database: 'bbryhj4grww25kl6jgze', // PostgreSQL database name
+    port: 50013
 });
 // Express app
 const app = express();
@@ -21,9 +22,9 @@ app.post('/api/v1/locations', (req, res) => {
     const query = 'INSERT INTO locations (id, trainid, timestamp, latitude, longitude, speed, direction) VALUES ($1, $2, $3, $4, $5, $6, $7)';
     const values = [locationData.id, locationData.trainid, locationData.timestamp, locationData.latitude, locationData.longitude, locationData.speed, locationData.direction || null]; // Handle optional direction
 
-    pool.query(query,values, (err, result) => {
+    pool.query(query, values, (err, result) => {
         if (err) {
-            res.status(500).json({error: 'Failed to save location data'});
+            res.status(500).json({error: 'Failed to save location data - ' + err});
         } else {
             res.json({message: 'Location data saved successfully'});
         }
@@ -35,13 +36,16 @@ app.put('/api/v1/locations/:trainId', (req, res) => {
     const trainId = req.params.trainId;
     const locationData = req.body;
 
-    pool.query('UPDATE locations SET ? WHERE trainId = ?', [locationData, trainId], (err, result) => {
+    const query = 'UPDATE locations SET ? WHERE trainId = $1 RETURNING *';
+    const values = [locationData, trainId];
+
+    pool.query(query, values, (err, result) => {
         if (err) {
-            res.status(500).json({ error: 'Failed to update location data - ' + err });
+            res.status(500).json({error: 'Failed to update location data - ' + err});
         } else if (result.affectedRows === 0) {
-            res.status(404).json({ error: 'Location not found' });
+            res.status(404).json({error: 'Location not found'});
         } else {
-            res.json({ message: 'Location data updated successfully' });
+            res.json({message: 'Location data updated successfully'});
         }
     });
 });
@@ -49,9 +53,9 @@ app.put('/api/v1/locations/:trainId', (req, res) => {
 app.get('/api/v1/locations', (req, res) => {
     pool.query('SELECT * FROM locations', (err, results) => {
         if (err) {
-            res.status(500).json({error: 'Failed to retrieve locations'});
+            res.status(500).json({error: 'Failed to retrieve locations - ' + err});
         } else {
-            res.json(results);
+            res.json(results["rows"]);
         }
     });
 });
@@ -64,7 +68,7 @@ app.get('/api/v1/locations/:trainId', (req, res) => {
         } else if (results.length === 0) {
             res.status(404).json({error: 'Location not found'});
         } else {
-            res.json(results[0]);
+            res.json(results['rows'][0]);
         }
     });
 });
