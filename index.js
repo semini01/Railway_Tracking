@@ -36,8 +36,8 @@ app.put('/api/v1/locations/:trainId', (req, res) => {
     const trainId = req.params.trainId;
     const locationData = req.body;
 
-    const query = 'UPDATE locations SET ? WHERE trainId = $1 RETURNING *';
-    const values = [locationData, trainId];
+    const query = 'UPDATE locations SET id=$1, trainid=$2, timestamp=$3, latitude=$4, longitude=$5, speed=$6, direction=$7 WHERE trainId = $8 RETURNING *';
+    const values = [locationData.id, trainId, locationData.timestamp, locationData.latitude, locationData.longitude, locationData.speed, locationData.direction, trainId];
 
     console.log(query.toString())
     pool.query(query, values, (err, result) => {
@@ -65,7 +65,7 @@ app.get('/api/v1/locations/:trainId', (req, res) => {
     const trainId = req.params.trainId;
     pool.query('SELECT * FROM locations WHERE trainId = $1', [trainId], (err, results) => {
         if (err) {
-            res.status(500).json({error: 'Failed to retrieve location'});
+            res.status(500).json({error: 'Failed to retrieve location - ' + err});
         } else if (results.length === 0) {
             res.status(404).json({error: 'Location not found'});
         } else {
