@@ -13,7 +13,7 @@ const pool = new Pool({
 });
 // Express app
 const app = express();
-app.use(cors());
+app.use(cors({origin:'*'}));
 app.use(bodyParser.json());
 
 // API endpoints
