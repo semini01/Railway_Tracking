@@ -5,15 +5,23 @@ const swaggerJsDoc = require("swagger-jsdoc")
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const options = {
-    definition:{
+    definition: {
         openapi: "3.0.0",
-        info:{
+        info: {
             title: "Real Time Rain Traking System",
-            version:"1.0.0",
-            description:"This Application track the live locaion of trains"
+            version: "1.0.0",
+            description: "This Application track the live locaion of trains"
         },
+        servers: [
+            {
+                url: 'https://railway-tracking.vercel.app'
+            },
+            {
+                url: 'http://localhost:3000'
+            }
+        ]
     },
-    apis:["index.js"]
+    apis: ["index.js"]
 }
 
 // PostgreSQL connection
@@ -27,8 +35,8 @@ const pool = new Pool({
 const specs = swaggerJsDoc(options);
 // Express app
 const app = express();
-app.use("/api-docs",swaggerUI.serve,swaggerUI.setup(specs))
-app.use(cors({origin:'https://railway-tracking-fe.vercel.app/'}));
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs))
+app.use(cors({origin: 'https://railway-tracking-fe.vercel.app/'}));
 app.use(bodyParser.json());
 
 // API endpoints
