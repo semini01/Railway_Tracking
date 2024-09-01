@@ -13,7 +13,7 @@ const pool = new Pool({
 });
 // Express app
 const app = express();
-app.use(cors({origin:'*'}));
+app.use(cors({origin:'https://railway-tracking-fe.vercel.app/'}));
 app.use(bodyParser.json());
 
 // API endpoints
